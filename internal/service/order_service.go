@@ -49,7 +49,7 @@ func (s *SubscriptionService) GetSubscriptionByID(ctx context.Context, id int) (
 
 func (s *SubscriptionService) GetSubscriptionsCostByUserDetails(
 	ctx context.Context,
-	userID *string,
+	userID string,
 	serviceName *string,
 	startPeriod time.Time,
 	endPeriod time.Time,

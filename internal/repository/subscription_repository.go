@@ -70,7 +70,7 @@ func (repo *SubscriptionRepository) GetSubscriptionsByUserUUID(ctx context.Conte
 func (repo *SubscriptionRepository) GetTotalSubscriptionCost(
 	ctx context.Context,
 	exec sqlx.ExtContext,
-	userID *string,
+	userID string,
 	serviceName *string,
 	startPeriod time.Time,
 	endPeriod time.Time,
