@@ -1,18 +1,38 @@
 version: "3.8"
 
 services:
-  postgres:
-    image: postgres:15
-    container_name: EffectiveMobile_postgres
+  db:
+    image: postgres:16
+    container_name: my-postgres
     restart: always
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: appdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydb
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      #- ./init/init_database.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: subscriptions-service
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      CONFIG_PATH: "/app/config.yaml"
+      DB_DSN: "postgresql://postgres:postgres@my-postgres:5432/mydb?sslmode=disable"
+      MIGRATE_ON_START: "true"
 
 volumes:
-  postgres_data:
+  pgdata:

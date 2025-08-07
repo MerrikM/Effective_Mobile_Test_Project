@@ -6,6 +6,7 @@ import (
 	"Effective_Mobile_Test_Project/internal/handler"
 	"Effective_Mobile_Test_Project/internal/repository"
 	"Effective_Mobile_Test_Project/internal/service"
+	"Effective_Mobile_Test_Project/migrations"
 	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
@@ -27,6 +28,14 @@ import (
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	if os.Getenv("MIGRATE_ON_START") == "true" {
+		if err := migrations.RunMigrations(); err != nil {
+			log.Fatalf("ошибка миграции: %v", err)
+		}
+
+		log.Println("миграция успешно выполнилась")
+	}
 
 	cfg, err := config.LoadConfig("config.yaml")
 	if err != nil {

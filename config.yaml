@@ -1,4 +1,4 @@
 databaseConfig:
-  dsn: "postgresql://user:password@localhost:5432/postgres?sslmode=disable"
+  dsn: "postgresql://postgres:postgres@my-postgres:5432/mydb?sslmode=disable"
 
 serverAddr: ":8080"
