@@ -59,7 +59,7 @@ func (s *SubscriptionService) GetSubscriptionsCostByUserDetails(
 		return 0, util.LogError("не удалось получить общую стоимость подписок", err)
 	}
 
-	log.Printf("общая стоимость подписок пользователя с uuid=%d : %d", userID, totalCost)
+	log.Printf("общая стоимость подписок пользователя с uuid=%s : %d", userID, totalCost)
 	return totalCost, nil
 }
 

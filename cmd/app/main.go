@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "Effective_Mobile_Test_Project/docs"
 	"Effective_Mobile_Test_Project/internal/config"
 	"Effective_Mobile_Test_Project/internal/handler"
 	"Effective_Mobile_Test_Project/internal/repository"
@@ -8,6 +9,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
 	"os"
@@ -16,6 +18,12 @@ import (
 	"time"
 )
 
+// @title           Subscription API
+// @version         1.0
+// @description     Сервис управления подписками
+// @host      localhost:8080
+// @BasePath  /
+// @schemes http
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -40,13 +48,16 @@ func main() {
 	subscriptionHandler := handler.NewSubscriptionHandler(subscriptionService)
 
 	restServer, router := config.SetupRestServer(cfg.ServerAddr)
+
+	router.Get("/swagger/*", httpSwagger.WrapHandler)
+
 	router.Route("/subscriptions", func(r chi.Router) {
 		r.Post("/create", subscriptionHandler.Create)
 		r.Get("/user/{uuid}", subscriptionHandler.GetByUserUUID)
 		r.Get("/get/{id}", subscriptionHandler.GetByID)
 		r.Put("/update/{id}", subscriptionHandler.UpdateByID)
 		r.Delete("/delete/{id}", subscriptionHandler.DeleteByID)
-		r.Get("/total-cost/", subscriptionHandler.GetTotalCost)
+		r.Get("/total-cost", subscriptionHandler.GetTotalCost)
 	})
 
 	runServer(ctx, restServer)

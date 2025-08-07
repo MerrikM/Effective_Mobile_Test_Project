@@ -23,8 +23,9 @@ func (repo *SubscriptionRepository) SaveSubscription(ctx context.Context, exec s
 	query := `INSERT INTO subscriptions 
         (service_name, price, user_id, start_date, end_date)
         VALUES ($1, $2, $3, $4, $5)
+		RETURNING id
     `
-	_, err := exec.ExecContext(
+	row := exec.QueryRowxContext(
 		ctx,
 		query,
 		subscription.ServiceName,
@@ -34,6 +35,7 @@ func (repo *SubscriptionRepository) SaveSubscription(ctx context.Context, exec s
 		subscription.EndDate.ToTime(),
 	)
 
+	err := row.Scan(&subscription.ID)
 	if err != nil {
 		return util.LogError("ошибка при вставке подписки", err)
 	}
@@ -81,14 +83,14 @@ func (repo *SubscriptionRepository) GetTotalSubscriptionCost(
 		WHERE 
 			($1::uuid IS NULL OR user_id = $1::uuid) AND
 			($2::text IS NULL OR service_name = $2::text) AND
-			start_date <= $4 AND (end_date IS NULL OR end_date >= $3)
+			start_date <= $4 AND (end_date IS NULL OR end_date >= $3 OR end_date = '0001-01-01')
 	`
 
 	var total int
 	err := sqlx.GetContext(ctx, exec, &total, query, userID, serviceName, startPeriod, endPeriod)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return 0, util.LogError("не удалось найти подписку по ее id", err)
+			return 0, util.LogError("не удалось найти подписки", err)
 		}
 		return 0, util.LogError("ошибка подсчета общей стоимости подписок", err)
 	}
